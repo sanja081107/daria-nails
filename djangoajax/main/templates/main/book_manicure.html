@@ -1,0 +1,122 @@
+{% extends 'main/base.html' %}
+
+{% block body %}
+
+<!--подключение скриптов и стилей bootstrap для уведомления-->
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/5.0.0-alpha2/css/bootstrap.min.css" integrity="sha384-DhY6onE6f3zzKbjUPRc2hOzGAdEf4/Dz+WJwBvEYL/lkkIsI3ihufq9hk9K4lVoK" crossorigin="anonymous">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" integrity="sha384-xOolHFLEh07PJGoPkLv1IbcEPTNtaed2xpHsD9ESMhqIYd0nLMwNLD69Npy4HI+N" crossorigin="anonymous">
+
+<!--подключение скриптов для календаря-->
+<link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+<script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+<script>
+/* Локализация datepicker */
+$.datepicker.regional['ru'] = {
+	closeText: 'Закрыть',
+	prevText: 'Предыдущий',
+	nextText: 'Следующий',
+	currentText: 'Сегодня',
+	monthNames: ['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'],
+	monthNamesShort: ['Янв','Фев','Мар','Апр','Май','Июн','Июл','Авг','Сен','Окт','Ноя','Дек'],
+	dayNames: ['воскресенье','понедельник','вторник','среда','четверг','пятница','суббота'],
+	dayNamesShort: ['вск','пнд','втр','срд','чтв','птн','сбт'],
+	dayNamesMin: ['Вс','Пн','Вт','Ср','Чт','Пт','Сб'],
+	weekHeader: 'Не',
+	dateFormat: 'yy-mm-dd',
+	firstDay: 1,
+	isRTL: false,
+	showMonthAfterYear: false,
+	yearSuffix: ''
+};
+$.datepicker.setDefaults($.datepicker.regional['ru']);
+</script>
+
+
+<p>Выберите доступный день:</p>
+
+<!--Отображение календаря-->
+<div id="datepicker"></div>
+<input type="hidden" id="datepicker_value"><br>
+
+<!--Отображение уведомления при удалении-->
+<div id="display"></div>
+
+<div class="alert alert-warning alert-dismissible fade show" role="alert">
+  <strong>Обращаем ваше внимание!</strong> После создания записи, Вам придет уведомление о записи на вашу электронную почту, после чего
+        Вы не сможете создать новую запись за и после {{ n }} дней со дня записи! Ограничение
+        действует до тех пор, пока Вы не отмените запись. Организовывайте ваше время правильно!
+        <p>Спасибо за понимание.</p>
+  <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>
+
+
+<script>
+var dates = [{% for el in access_time %}'{{ el }}',{% endfor %}];
+
+$(function(){
+	$("#datepicker").datepicker({
+		beforeShowDay: function(date){
+			var string = jQuery.datepicker.formatDate('yy-mm-dd', date);
+			return [dates.indexOf(string) != -1]
+		}
+	});
+});
+</script>
+
+
+<script>
+$(document).ready(function(){
+
+    setInterval(function(){
+        $.ajax({
+            type: 'GET',
+            url : '{% url 'answer_ajax' %}',
+            data: {
+                'date': $("#datepicker").val(),
+            },
+<!--        dataType: 'text', не дает вывести информацию в див         -->
+            cache: false,
+            success: function(data){
+                if (data != 'no' && data != 'today'){
+                    $("#display").empty();
+                    console.log(data);
+
+                    var title = "<p>Доступное время:</p>"
+                    $("#display").append(title);
+                    for (var key in data.posts)
+                        {
+                            var temp="<div class='container darker'><b>"+data.posts[key].title+
+                            "</b>&nbsp;&nbsp;<a class='btn btn-sm btn-outline-success' href='/confirm_book_"+data.posts[key].id+"/'>Записаться</a></div><br>";
+
+                            $("#display").append(temp);
+                        }
+                }
+                if (data == 'today') {
+                    console.log('no');
+                    $("#display").empty();
+                    var title = "<p>На сегодня нет свободного времени, выберите другой день!</p>"
+                    $("#display").append(title);
+                };
+                if (data == 'no') {
+                    console.log('no');
+                    $("#display").empty();
+                    var title = "<p>Нет свободного времени, выберите другой день</p>"
+                    $("#display").append(title);
+                }
+            },
+            error: function(data) {
+<!--                alert('An error occurred');     -->
+                $("#display").empty();
+                var title = "<p>Выберите доступный день в календаре!</p>"
+                $("#display").append(title);
+            }
+        });
+    },1500);
+})
+</script>
+
+{% endblock %}

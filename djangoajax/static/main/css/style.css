@@ -1,0 +1,43 @@
+.blog-header {
+    background-color: pink;
+}
+.my-register {
+    margin-right: 15px;
+}
+.link-secondary {
+    margin-left: 15px;
+}
+.user-photo {
+    position: relative;
+    left: 10px;
+    width: 20px;
+    border-radius: 10px;
+}
+.add-post {
+    width: 50%;
+}
+.delete-book-btn {
+    margin-right: 10px;
+}
+.user-detail-create-book {
+    text-decoration: none;
+}
+
+@media screen and (max-width: 900px) {
+    .my-register {
+        display: none;
+    }
+    .blog-header-logo {
+        font-size: 1rem;
+    }
+    .register-mobile {
+        padding-top: 15px;
+        text-align: center;
+    }
+
+}
+@media screen and (min-width: 900px) {
+    .register-mobile {
+        display: none;
+    }
+}
