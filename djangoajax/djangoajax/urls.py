@@ -22,8 +22,8 @@ from main.views import pageNotFound
 from djangoajax import settings
 
 urlpatterns = [
-    re_path('admin/', admin.site.urls),
-    re_path('', include('main.urls')),
+    path('admin/', admin.site.urls),
+    path('', include('main.urls')),
 ]
 
 if settings.DEBUG:

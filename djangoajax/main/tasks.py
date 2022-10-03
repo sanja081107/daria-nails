@@ -6,6 +6,7 @@ from django.core.mail import send_mail
 import calendar
 
 from django.http import JsonResponse
+from django_celery_beat.models import PeriodicTask
 
 from .models import *
 
@@ -34,8 +35,8 @@ def order_canceled(arg, user_id):
     user = CustomUser.objects.get(id=user_id)
     post = Post.objects.get(id=arg)
     subject = 'Отмена записи'
-    message = 'Уважаемая(-ый) {} {},\nВаша запись на {} была успешно отменена.'.format(post.client.first_name, post.client.last_name, post.title)
-    email = post.client.email
+    message = f'Уважаемая(-ый) {user.first_name} {user.last_name},\nВаша запись на {post.title} была успешно отменена.'
+    email = user.email
 
     title = post.title
     username = post.client.username

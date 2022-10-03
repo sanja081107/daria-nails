@@ -142,8 +142,8 @@ def not_active(request, pk):
 
     if user.is_staff:
         if post.client:
-            order_canceled.delay(pk, user.pk)
-            task = PeriodicTask.objects.filter(name='{}-{}'.format(post.title, post.id))
+            order_canceled.delay(arg=pk, user_id=user.pk)
+            task = PeriodicTask.objects.filter(name='{}-{}'.format(post.title, post.pk))
             if task.exists():
                 task[0].delete()
         else:
@@ -153,16 +153,16 @@ def not_active(request, pk):
             post.save()
 
         return redirect('create_book')
-
-    elif post.client == user:
-        order_canceled.delay(pk, user.pk)
-        task = PeriodicTask.objects.filter(name='{}-{}'.format(post.title, post.id))
-        if task.exists():
-            task[0].delete()
-
-        return redirect('my_book')
     else:
-        return redirect('home')
+        if post.client == user:
+            order_canceled.delay(arg=pk, user_id=user.pk)
+            task = PeriodicTask.objects.filter(name='{}-{}'.format(post.title, post.id))
+            if task.exists():
+                task[0].delete()
+
+            return redirect('my_book')
+        else:
+            return redirect('home')
 
 
 def book_manicure(request):
@@ -269,7 +269,9 @@ def confirm_book(request, pk):
                 select_post.client = request.user
                 select_post.service = Service.objects.get(id=service_id)
                 select_post.save()
-                # order_created.delay(post.id)
+
+                # order_created.delay(select_post.id)
+
                 today = datetime.now()
                 PeriodicTask.objects.create(
                     name='{}-{}'.format(select_post.title, select_post.id),
@@ -280,6 +282,7 @@ def confirm_book(request, pk):
                     start_time=today,
                     one_off=True,
                 )
+
                 return redirect('my_book')
             except:
                 form.add_error(None, 'Нужно выбрать услугу')  # Создается общая ошибка, если форма не связана с моделью и некорректна
@@ -306,7 +309,7 @@ def statistic(request):
         first_day = today - timedelta(today.day-1)              # Первый день месяца
         last_day = first_day + timedelta(days_in_month-1)       # Последний день месяца
 
-        print(first_day, last_day)
+        # print(first_day, last_day)
 
         posts_all = Post.objects.all().order_by('date')
         posts_clients = []

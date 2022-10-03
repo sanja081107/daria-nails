@@ -1,1 +1,2 @@
-web gunicorn djangoajax.wsgi:application --log-file -
+beat: celery -A djangoajax beat -l INFO
+worker: celery -A djangoajax.celery worker -l INFO

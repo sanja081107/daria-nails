@@ -12,7 +12,6 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 import os
 from pathlib import Path
 import django_heroku
-import dj_database_url
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -25,7 +24,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-9y*qj#%f!3ej*(41w4-$3nakqxwlh5+wk_lto@0#)rbb-)&7!s'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ['*', 'www.daria-nails.herokuapp.com', 'daria-nails.herokuapp.com']
 
@@ -43,6 +42,7 @@ INSTALLED_APPS = [
     'django_celery_results',
     'django_celery_beat',
     'widget_tweaks',
+    'channels',
 ]
 
 AUTH_USER_MODEL = 'main.CustomUser'
@@ -50,6 +50,9 @@ AUTH_USER_MODEL = 'main.CustomUser'
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+
+    'whitenoise.middleware.WhiteNoiseMiddleware',
+
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -59,12 +62,11 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'djangoajax.urls'
 
-TEMPLATE_DIR = Path(BASE_DIR / 'templates')
 
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [TEMPLATE_DIR, ],
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -78,7 +80,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'djangoajax.wsgi.application'
-
+ASGI_APPLICATION = "djangoajax.asgi.application"
 
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
@@ -89,19 +91,6 @@ DATABASES = {
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
-
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.mysql',
-#         'OPTIONS': {'charset': 'utf8mb4'},
-#         'NAME': 'nails',
-#         'USER': 'root',
-#         'PASSWORD': '12345678',
-#         'HOST': 'localhost',
-#         'PORT': '3306',
-#         'TIME_ZONE': 'Europe/Minsk'
-#     }
-# }
 
 # Password validation
 # https://docs.djangoproject.com/en/4.1/ref/settings/#auth-password-validators
@@ -143,10 +132,9 @@ USE_TZ = True
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
-STATICFILES_DIR = []
+STATICFILES_DIR = (os.path.join(BASE_DIR, 'static'),)
 
 
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')    # создаем директорию на статические медиа файлы
@@ -165,23 +153,19 @@ EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 DEFAULT_FROM_EMAIL = "sanja081107@gmail.com"
 
+# celery setting.
+
+# CELERY_BROKER_URL = os.environ['REDIS_URL']
+# CELERY_BROKER_URL = 'redis://:p26908f4db13747b599d271450c3beb080173cff72a78f9a289351c36f33ca077@ec2-34-251-154-59.eu-west-1.compute.amazonaws.com:20549'
+
+CELERY_RESULT_BACKEND = 'django-db'
+# CELERY_RESULT_BACKEND = os.environ['REDIS_URL']
+CELERY_ACCEPT_CONTENT = ['application/json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TIMEZONE = 'Europe/Minsk'
 
 CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
-# CELERY_ENABLE_UTC = False
-# CELERY_TIMEZONE = 'Europe/Minsk'
-# CELERY_TASK_TRACK_STARTED = True
-# CELERY_TASK_TIME_LIMIT = 30 * 60
 
+# django_heroku.settings(locals())
 
-# celery setting.
-CELERY_CACHE_BACKEND = 'default'
-CELERY_RESULT_BACKEND = 'django-db'
-
-
-# django setting.
-# CACHES = {
-#     'default': {
-#         'BACKEND': 'django.core.cache.backends.redis.RedisCache',
-#         'LOCATION': 'redis://127.0.0.1:6379/1',
-#     }
-# }
