@@ -57,11 +57,11 @@
 
 
         {% if request.user == el %}
-            <a class="btn btn-outline-primary" href="{% url 'user_edit' el.pk %}">Изменить данные</a>
+            <a class="btn mb-2 btn-outline-primary" href="{% url 'user_edit' el.pk %}">Изменить данные</a>
         {% endif %}
 
         {% if request.user == el %}
-            <a class="btn btn-outline-primary" href="{% url 'change_password' %}">Изменить пароль</a>
+            <a class="btn mb-2 btn-outline-primary" href="{% url 'change_password' %}">Изменить пароль</a>
         {% endif %}
     </div>
 </div>

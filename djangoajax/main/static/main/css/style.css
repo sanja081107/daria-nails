@@ -14,8 +14,15 @@
     border-radius: 10px;
 }
 .add-post {
-    width: 50%;
+    width: 100%;
+    margin: auto 0;
 }
+.hasDatepicker {
+    justify-content: center;
+    align-items: center;
+    display: flex;
+}
+
 .delete-book-btn {
     margin-right: 10px;
 }
@@ -34,10 +41,23 @@
         padding-top: 15px;
         text-align: center;
     }
+    .nav-scroller {
+        display: none;
+    }
+    .link-secondary {
+        display: none;
+    }
 
 }
 @media screen and (min-width: 900px) {
     .register-mobile {
         display: none;
+    }
+    .dropbtn {
+        display: none;
+    }
+    .certificates {
+        width: 60%;
+        margin-left: 20%;
     }
 }

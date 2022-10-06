@@ -16,6 +16,19 @@ from .forms import *
 from .tasks import *
 
 
+def month_my_works():
+    month_my_work = []
+    posts = MyWorks.objects.filter(is_active=True)
+    for el in posts:
+        d = el.date
+        d = str(d).split('-')
+        deadline = datetime.strptime(f'{d[0]}-{d[1]}-1', "%Y-%m-%d")
+        month_my_work.append(deadline)
+    month_my_work = set(month_my_work)
+    month_my_work = list(month_my_work)
+    month_my_work.sort(reverse=True)
+    return month_my_work
+
 def pageNotFound(request, exception):
     return HttpResponseNotFound('<h1>Page not found</h1>')
 
@@ -26,14 +39,18 @@ def home(request):
             ' distinctio dolorem ducimus eveniet fugit illum magnam minus neque non perspiciatis possimus, quos' \
             ' repellendus rerum sed soluta temporibus totam unde vitae voluptas voluptatibus!'
 
-    context = {'title': 'Главная', 'title_body': 'Главная страница', 'cont': lorem}
+    month_my_work = month_my_works()
+    context = {'title': 'Главная', 'title_body': 'Главная страница', 'month_my_work': month_my_work, 'cont': lorem}
 
     return render(request, 'main/index.html', context)
 
 
 def create_book(request):
     if not request.user.is_staff:
-        return redirect('home')
+        context = {
+            'error': 'yes',
+        }
+        return render(request, 'main/my_works.html', context)
     else:
         form = PostForm()
 
@@ -75,8 +92,10 @@ def create_book(request):
             except:
                 form.add_error(None, 'Неверные данные')         # Создается общая ошибка, если форма не связана с моделью и некорректна
 
+        month_my_work = month_my_works()
         context = {'title': 'Создать запись на маникюр',
                    'title_body': 'Создать запись на маникюр',
+                   'month_my_work': month_my_work,
                    'page_obj_title': page_obj_title,
                    'form': form,
                    'before_middle': f":{middle}",
@@ -99,8 +118,10 @@ class EditBookView(UpdateView):
             return context
         else:
             context = super().get_context_data(**kwargs)
+            month_my_work = month_my_works()
             context['title'] = 'Изменение записи'
             context['title_body'] = 'Изменение записи'
+            context['month_my_work'] = month_my_work
             return context
 
     def get_success_url(self):
@@ -109,15 +130,20 @@ class EditBookView(UpdateView):
 
 def all_users(request):
     if not request.user.is_staff:
-        return redirect('home')
+        context = {
+            'error': 'yes',
+        }
+        return render(request, 'main/my_works.html', context)
     else:
         users = CustomUser.objects.all()
         paginator = Paginator(users, 10)              # Показывает все записи на текущий месяца
         page_number = request.GET.get('page')
         page_obj = paginator.get_page(page_number)
+        month_my_work = month_my_works()
         context = {
             'title': 'Все пользователи',
             'title_body': 'Все пользователи',
+            'month_my_work': month_my_work,
             'users': 'yes',
             'page_obj': page_obj,
             'paginator': paginator,
@@ -207,7 +233,8 @@ def book_manicure(request):
             access_time = list(access_time)
             access = access_time                                    # Список дат которые отдаются на календарь как доступные даты
 
-        context = {'title': 'Запись на ногти', 'title_body': 'Запись на ногти', 'access_time': access, 'n': n}
+        month_my_work = month_my_works()
+        context = {'title': 'Запись на ногти', 'title_body': 'Запись на ногти', 'month_my_work': month_my_work, 'access_time': access, 'n': n}
 
         return render(request, 'main/book_manicure.html', context)
 
@@ -287,9 +314,11 @@ def confirm_book(request, pk):
             except:
                 form.add_error(None, 'Нужно выбрать услугу')  # Создается общая ошибка, если форма не связана с моделью и некорректна
         time = select_post.title.split()
+        month_my_work = month_my_works()
         context = {
             'title': 'Подтверждение',
             'title_body': 'Подтверждение записи',
+            'month_my_work': month_my_work,
             'form': form,
             'el': select_post,
             'time': time[1],
@@ -299,7 +328,10 @@ def confirm_book(request, pk):
 
 def statistic(request):
     if not request.user.is_staff:
-        return redirect('home')
+        context = {
+            'error': 'yes',
+        }
+        return render(request, 'main/my_works.html', context)
     else:
         today = datetime.date(datetime.now())
         year = today.year
@@ -319,12 +351,10 @@ def statistic(request):
 
         current_profit_for_this_month_to_now = [0]
         expected_profit_for_this_remaining_month = [0]
-        current_profit_to_now = [0]
         expected_profit_for_all_next_months = [0]
 
         list_for_this_month_to_now = []
         list_for_this_remaining_month = []
-        list_to_now = []
         list_for_all_other_months = []
 
         if posts_clients:
@@ -339,11 +369,6 @@ def statistic(request):
                     expected_profit_for_this_remaining_month.append(el.service.price)
 
             for el in posts_clients:
-                if el.date <= today:
-                    list_to_now.append(el)
-                    current_profit_to_now.append(el.service.price)
-
-            for el in posts_clients:
                 if el.date > last_day:
                     list_for_all_other_months.append(el)
                     expected_profit_for_all_next_months.append(el.service.price)
@@ -355,12 +380,14 @@ def statistic(request):
 
         current_profit_for_this_month_to_now = sum(current_profit_for_this_month_to_now)
         expected_profit_for_this_remaining_month = sum(expected_profit_for_this_remaining_month)
-        current_profit_to_now = sum(current_profit_to_now)
+        current_profit_to_now = current_profit_for_this_month_to_now + profit
         expected_profit_for_all_next_months = sum(expected_profit_for_all_next_months)
 
+        month_my_work = month_my_works()
         context = {
             'title': 'Статистика',
             'title_body': 'Статистика записей',
+            'month_my_work': month_my_work,
             'statistic': 'yes',
             'profit_all': profit_all,
             'profit': profit,
@@ -371,7 +398,6 @@ def statistic(request):
             'list_for_this_remaining_month': list_for_this_remaining_month,
             'expected_profit_for_this_remaining_month': expected_profit_for_this_remaining_month,
 
-            'list_to_now': list_to_now,
             'current_profit_to_now': current_profit_to_now,
 
             'list_for_all_other_months': list_for_all_other_months,
@@ -388,11 +414,44 @@ class MyWorksCreateView(CreateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        month_my_work = month_my_works()
         context['title'] = 'Мои работы'
         context['title_body'] = 'Мои работы'
         context['title_block'] = 'Создать новую работу\n(Эту форму не видят пользователи)'
-        context['posts'] = MyWorks.objects.filter(is_active=True)
+        context['month_my_work'] = month_my_work
+        context['no_posts'] = 'Мастер еще не загрузил фото!'
+        if not self.request.user.is_staff:
+            context['posts'] = MyWorks.objects.filter(is_active=True)
+        else:
+            context['posts'] = MyWorks.objects.all()
         return context
+
+def my_works_by_date(request, date):
+    date = datetime.strptime(date, "%Y-%m-%d")
+    year = date.year
+    month = date.month
+    days_in_month = calendar.monthrange(year, month)[1]
+
+    first_day = date                                        # Первый день месяца
+    last_day = first_day + timedelta(days_in_month - 1)     # Последний день месяца
+
+    posts_works = []
+    posts_all = MyWorks.objects.filter(is_active=True)
+    if posts_all:
+        for el in posts_all:
+            if first_day.date() <= el.date <= last_day.date():
+                posts_works.append(el)
+    month_my_work = month_my_works()
+    context = {
+        'title': 'Работы мастера',
+        'title_body': f"Работы мастера за {str(date)[:7]}",
+        'title_block': 'Создать новую работу\n(Эту форму не видят пользователи)',
+        'month_my_work': month_my_work,
+        'form_no': 'yes',
+        'no_posts': 'Мастер еще не загрузил фото!',
+        'posts': posts_works,
+    }
+    return render(request, 'main/my_works.html', context)
 
 class MyWorksUpdateView(UpdateView):
     model = MyWorks
@@ -406,15 +465,17 @@ class MyWorksUpdateView(UpdateView):
         else:
             post = MyWorks.objects.get(pk=self.kwargs['pk'])
             context = super().get_context_data(**kwargs)
+            month_my_work = month_my_works()
             context['title'] = 'Мои работы'
             context['title_body'] = 'Изменение данных о работе'
+            context['month_my_work'] = month_my_work
             context['title_block'] = 'Изменить работу'
             context['post'] = post
             context['delete'] = 'yes'
             return context
 
     def get_success_url(self):
-        return redirect('my_works')
+        return reverse_lazy('my_works')
 
 
 def delete_work(request, pk):
@@ -454,9 +515,11 @@ def my_book(request):
         if len(old_books) == 0:
             old_book = '0'
 
+        month_my_work = month_my_works()
         context = {
             'title': 'Мои записи',
             'title_body': 'Мои записи',
+            'month_my_work': month_my_work,
             'books_page': 'yes',
             'books': books,
             'book': book,
@@ -475,10 +538,12 @@ def user_detail(request, pk):
         context = {'error': 'error'}
         return render(request, 'main/registration.html', context)
     else:
+        month_my_work = month_my_works()
         context = {
             'el': user,
             'title': user.username,
-            'title_body': 'Имя пользователя: ' + user.username
+            'title_body': 'Имя пользователя: ' + user.username,
+            'month_my_work': month_my_work,
         }
         return render(request, 'main/user_detail.html', context)
 
@@ -494,8 +559,10 @@ class RegisterUser(CreateView):
             return redirect('home')
         else:
             context = super().get_context_data(**kwargs)
+            month_my_work = month_my_works()
             context['title'] = 'Регистрация'
             context['title_body'] = 'Регистрация'
+            context['month_my_work'] = month_my_work
             return context
 
     def form_valid(self, form):     # эта ф-ия вызывается после успешной обработки формы и логинит пол-ля
@@ -516,8 +583,10 @@ class UserUpdateView(UpdateView):
             return context
         else:
             context = super().get_context_data(**kwargs)
+            month_my_work = month_my_works()
             context['title'] = 'Обновление данных'
             context['title_body'] = 'Обновление данных о пользователе'
+            context['month_my_work'] = month_my_work
             return context
 
     def get_success_url(self):
@@ -542,16 +611,20 @@ class LoginUser(LoginView):
             return redirect('home')
         else:
             context = super().get_context_data(**kwargs)
+            month_my_work = month_my_works()
             context['title'] = 'Вход в систему'
             context['title_body'] = 'Вход в систему'
+            context['month_my_work'] = month_my_work
             return context
 
 
 def certificates(request):
+    month_my_work = month_my_works()
     context = {
         'certificates': 'yes',
         'title': 'Сертификаты',
         'title_body': 'Сертификаты',
+        'month_my_work': month_my_work,
     }
     return render(request, 'main/index.html', context)
 

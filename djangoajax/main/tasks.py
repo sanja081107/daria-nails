@@ -61,7 +61,8 @@ def profit_for_month():
     """
     Задача для расчета прибыли за прошедший месяц (выполняется 1го числа каждого месяца).
     """
-    today = datetime.date(datetime.now()) - timedelta(days=1)
+    now = datetime.date(datetime.now()).day
+    today = datetime.date(datetime.now()) - timedelta(days=now)
     year = today.year
     month = today.month
     days_in_month = calendar.monthrange(year, month)[1]
