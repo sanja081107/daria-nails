@@ -29,6 +29,9 @@
 .user-detail-create-book {
     text-decoration: none;
 }
+.list-unstyled a, li {
+    color: #188bfd;
+}
 
 @media screen and (max-width: 900px) {
     .my-register {

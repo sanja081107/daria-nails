@@ -81,10 +81,27 @@
 
 <!--для страницы Мои записи-->
 {% if books_page %}
+
+    {% if user.is_staff %}
+        <h4 class="mb-4 fst-italic">Записи моих клиентов:</h4>
+        {% if list_posts_clients %}
+            <ol class="list-my-clients">
+                {% for el in list_posts_clients %}
+                    <li>{{ el.client.first_name }} {{ el.client.last_name }}, день: {{ el.date|date:'d.m.Y' }}, цена: {{ el.service.price }}p
+                    <br>{{ el.title }}</li>
+                    <br>
+                {% endfor %}
+            </ol>
+        {% else %}
+            <h5 class="mb-4 fst-italic">На данный момент нет записей</h5>
+        {% endif %}
+        <div class="mb-4 pb-4 col-10 border-bottom"></div>
+    {% endif %}
+
     <div class="row">
     {% if books %}
         <div class="col-sm">
-            <h4 class="mb-4 fst-italic">Все активные записи:</h4>
+            <h4 class="mb-4 fst-italic">Мои активные записи:</h4>
                 {% for el in books %}
                     <div class="mb-4 pb-4 col-10 border-bottom">
                         {{ el.title }} &nbsp; дата: {{ el.date|date:'d.m.Y' }}<br>
@@ -97,7 +114,7 @@
     {% elif book == '0' %}
         <div class="col-sm">
             <div class="mb-4 pb-4 col-10 border-bottom">
-                <h4 class="mb-4 fst-italic">Все активные записи:</h4>
+                <h4 class="mb-4 fst-italic">Мои активные записи:</h4>
                 <h6 class="mb-4 fst-italic">Нет записей! <a href="{% url 'book_manicure' %}">Создать запись</a></h6>
             </div>
         </div>
@@ -105,7 +122,7 @@
 
     {% if old_books %}
         <div class="col-sm">
-            <h4 class="mb-4 fst-italic">Старые записи: </h4>
+            <h4 class="mb-4 fst-italic">Мои старые записи: </h4>
             {% for el in old_books %}
                 <div class="mb-4 pb-4 col-10 border-bottom">
                     {{ el.title }} &nbsp; дата: {{ el.date|date:'d.m.Y' }}<br>
@@ -116,7 +133,7 @@
     {% elif old_book == '0' %}
         <div class="col-sm">
             <div class="mb-4 pb-4 col-10 border-bottom">
-                <h4 class="mb-4 fst-italic">Старые записи: </h4>
+                <h4 class="mb-4 fst-italic">Мои старые записи: </h4>
                 <h6 class="mb-4 fst-italic">Нет старых записей</h6>
             </div>
         </div>

@@ -501,6 +501,12 @@ def my_book(request):
         book = ''
         old_book = ''
 
+        list_posts_clients = []
+        posts_clients = Post.objects.all().order_by('date')
+        for el in posts_clients:
+            if el.client and el.client != user and el.date >= today:
+                list_posts_clients.append(el)
+
         books = []
         for el in posts:
             if el.date >= today:
@@ -520,6 +526,7 @@ def my_book(request):
             'title': 'Мои записи',
             'title_body': 'Мои записи',
             'month_my_work': month_my_work,
+            'list_posts_clients': list_posts_clients,
             'books_page': 'yes',
             'books': books,
             'book': book,

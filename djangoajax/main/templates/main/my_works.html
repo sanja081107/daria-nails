@@ -45,7 +45,7 @@
         <div class="row">
             <div class="col-sm">
                 {% for el in posts|slice:"::3" %}
-                    <img src="{{ el.photo.url }}" width="90%"><br>{{ el.title }} - {{ el.date }}
+                    <img src="{{ el.photo.url }}" width="90%"><br>{{ el.title }} - {{ el.date|date:"d.m.Y" }}
                 {% if request.user.is_staff %}
                     <a href="{% url 'edit_work' el.pk %}"><i class="fa-solid fa-gear"></i></a>
                     {% if el.is_active %}
@@ -59,7 +59,7 @@
             </div>
             <div class="col-sm">
                 {% for el in posts|slice:"1::3" %}
-                    <img src="{{ el.photo.url }}" width="90%"><br>{{ el.title }} - {{ el.date }}
+                    <img src="{{ el.photo.url }}" width="90%"><br>{{ el.title }} - {{ el.date|date:"d.m.Y" }}
                 {% if request.user.is_staff %}
                     <a href="{% url 'edit_work' el.pk %}"><i class="fa-solid fa-gear"></i></a>
                     {% if el.is_active %}
@@ -73,7 +73,7 @@
             </div>
             <div class="col-sm">
                 {% for el in posts|slice:"2::3" %}
-                    <img src="{{ el.photo.url }}" width="90%"><br>{{ el.title }} - {{ el.date }}
+                    <img src="{{ el.photo.url }}" width="90%"><br>{{ el.title }} - {{ el.date|date:"d.m.Y" }}
                 {% if request.user.is_staff %}
                     <a href="{% url 'edit_work' el.pk %}"><i class="fa-solid fa-gear"></i></a>
                     {% if el.is_active %}
