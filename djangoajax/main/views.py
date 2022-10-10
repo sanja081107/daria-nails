@@ -1,16 +1,14 @@
-import calendar
 import datetime
 
 from django.contrib.auth import logout, login
-from django.contrib.auth.mixins import PermissionRequiredMixin
-from django.contrib.auth.views import LoginView
+from django.contrib.auth.views import LoginView, PasswordChangeView, PasswordChangeDoneView, PasswordResetView, \
+    PasswordResetDoneView, PasswordResetConfirmView, PasswordResetCompleteView
 from django.http import HttpResponse, JsonResponse, HttpResponseNotFound
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
 from django.core.paginator import Paginator
 from django.views.generic import CreateView, UpdateView
 from django_celery_beat.models import *
-import json
 
 from .forms import *
 from .tasks import *
@@ -34,13 +32,15 @@ def pageNotFound(request, exception):
 
 
 def home(request):
-    lorem = 'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Autem deserunt distinctio ducimus error' \
-            ' ipsa magnam maxime, molestiae, mollitia odio quam recusandae rem, repellendus voluptas! A ad atque' \
-            ' distinctio dolorem ducimus eveniet fugit illum magnam minus neque non perspiciatis possimus, quos' \
-            ' repellendus rerum sed soluta temporibus totam unde vitae voluptas voluptatibus!'
-
     month_my_work = month_my_works()
-    context = {'title': 'Главная', 'title_body': 'Главная страница', 'month_my_work': month_my_work, 'cont': lorem}
+    context = {'title': 'Главная', 'title_body': 'Главная страница', 'month_my_work': month_my_work, 'home': 'yes'}
+
+    return render(request, 'main/index.html', context)
+
+
+def about_me(request):
+    month_my_work = month_my_works()
+    context = {'title': 'Обо мне', 'title_body': 'Обо мне', 'month_my_work': month_my_work, 'about_me': 'yes'}
 
     return render(request, 'main/index.html', context)
 
@@ -634,6 +634,49 @@ def certificates(request):
         'month_my_work': month_my_work,
     }
     return render(request, 'main/index.html', context)
+
+
+class ChangePassword(PasswordChangeView):
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data()
+        month_my_work = month_my_works()
+        context['month_my_work'] = month_my_work
+        return context
+
+class PasswordChangeDone(PasswordChangeDoneView):
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data()
+        month_my_work = month_my_works()
+        context['month_my_work'] = month_my_work
+        return context
+
+class PasswordReset(PasswordResetView):
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data()
+        month_my_work = month_my_works()
+        context['month_my_work'] = month_my_work
+        return context
+
+class PasswordResetDone(PasswordResetDoneView):
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data()
+        month_my_work = month_my_works()
+        context['month_my_work'] = month_my_work
+        return context
+
+class PasswordResetConfirm(PasswordResetConfirmView):
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data()
+        month_my_work = month_my_works()
+        context['month_my_work'] = month_my_work
+        return context
+
+class PasswordResetComplete(PasswordResetCompleteView):
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data()
+        month_my_work = month_my_works()
+        context['month_my_work'] = month_my_work
+        return context
 
 
 def answer_ajax(request):

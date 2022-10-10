@@ -9,8 +9,19 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" integrity="sha384-xOolHFLEh07PJGoPkLv1IbcEPTNtaed2xpHsD9ESMhqIYd0nLMwNLD69Npy4HI+N" crossorigin="anonymous">
 
 <!--для страницы Главная-->
-{{ cont }}
-
+{% if home %}
+    <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Красивый маникюр не зря называют визиткой девушки,
+       ведь он действительно формирует представление о степени ухоженности представительниц слабого пола.
+       Нельзя просто нарядиться в обтягивающее платье, надеть туфли на высокой шпильке и завить голливудские
+       локоны, но при этом стыдливо прятать руки из-за сколотого лака на ногтях. Маникюр дает +100% к
+       уверенности и обаянию, проверено тысячами милых леди.
+    </p>
+    <p>
+       &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Daria-nails-minsk привык радовать своих
+       клиентов отменными ногтями. Так что если ваши ногти требуют ухода, не думайте долго,
+       а записавыйтесь сразу. И я осуществлю любые ваши идеи и пожелания.
+    </p>
+{% endif %}
 
 <!--для страницы Пользователи-->
 {% if users %}
@@ -280,5 +291,30 @@
     </div>
 {% endif %}
 
+
+<!--для страницы Обо мне-->
+{% if about_me %}
+
+    <div class="row">
+
+        <div class="col-sm">
+            <img src="{% static 'main/img/your_master.jpg' %}" width="70%">
+        </div>
+
+        <div class="col-sm">
+            <p><h4>Имя:</h4> Дарья</p>
+
+            <p><h4>Возраст:</h4> 22 года</p>
+
+            <p><h4>Почта:</h4> administrator@daria-nails-minsk.ru</p>
+
+            <p><h4>Местоположение:</h4> Ленинский/Заводской р-н.</p>
+
+            <p><h4>Инстаграм:</h4> daria.nails.minsk</p>
+
+        </div>
+        <h4 class="mb-4 fst-italic">По каким-либо вопросам, пишите на почту или в инстаграм!</h4>
+    </div>
+{% endif %}
 
 {% endblock %}
