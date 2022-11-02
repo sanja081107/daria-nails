@@ -21,7 +21,7 @@ def order_created(arg):
     subject = 'Регистрация записи'
     message = 'Уважаемая(-ый) {},\nВы успешно оформили запись на ногти.\nВаше время {}.'.format(post.client.first_name, post.title)
 
-    send_mail(subject, message, 'sanja081107@gmail.com', [post.client.email])
+    send_mail(subject, message, 'sanja081107@gmail.com', [post.client.email, 'alexander_misyuta@mail.ru'])
 
     return json.dumps({'created book': f'{post.title} - {post.client.username}'})
 
@@ -51,7 +51,7 @@ def order_canceled(arg, user_id):
         post.service = None
         post.save()
 
-    send_mail(subject, message, 'sanja081107@gmail.com', [email])
+    send_mail(subject, message, 'sanja081107@gmail.com', [email, 'alexander_misyuta@mail.ru'])
 
     return json.dumps({'canceled book': f'{title} - {username}'})
 

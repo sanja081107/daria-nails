@@ -193,7 +193,20 @@ def not_active(request, pk):
 
 def book_manicure(request):
     if not request.user.is_authenticated:
-        return redirect('log_in')
+        posts = Post.objects.filter(client=None, is_active=True)
+        month_my_work = month_my_works()
+        n = 3
+        access = []
+        for el in posts:
+            today = datetime.date(datetime.now())
+            if el.date >= today:
+                access.append(str(el.date))
+        access = set(access)
+        access = list(access)
+        context = {'title': 'Запись на ногти', 'title_body': 'Запись на ногти', 'month_my_work': month_my_work,
+                   'access_time': access, 'n': n}
+
+        return render(request, 'main/book_manicure.html', context)
     else:
 
         posts = Post.objects.filter(client=None, is_active=True)
